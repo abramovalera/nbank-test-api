@@ -1,0 +1,132 @@
+// Итерация 1
+// LoginUserTest
+### Positive adminCanGenerateAuthTokenTest createAdmin
+POST http://localhost:4111/api/v1/auth/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "username": "admin",
+  "password": "admin"
+}
+
+### Positive userCanGenerateAuthTokenTest createUser
+POST http://localhost:4111/api/v1/admin/users
+Content-Type: application/json
+Accept: application/json
+Authorization: Basic YWRtaW46YWRtaW4=
+
+{
+  "username": "user1",
+  "password": "Password11!",
+  "role": "USER"
+}
+
+### Positive userCanGenerateAuthTokenTest loginUser
+POST http://localhost:4111/api/v1/auth/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "username": "user1",
+  "password": "Password11!"
+}
+
+// CreateUserTest
+### Positive adminCanCreateUserWithCorrectData createUser
+POST http://localhost:4111/api/v1/admin/users
+Content-Type: application/json
+Accept: application/json
+Authorization: Basic YWRtaW46YWRtaW4=
+
+{
+  "username": "user2",
+  "password": "Password11!",
+  "role": "USER"
+}
+
+### Negative adminCanNotUserWithInvalidData emptyUsername
+POST http://localhost:4111/api/v1/admin/users
+Content-Type: application/json
+Accept: application/json
+Authorization: Basic YWRtaW46YWRtaW4=
+
+{
+  "username": "",
+  "password": "Password11!",
+  "role": "USER"
+}
+
+### Negative adminCanNotUserWithInvalidData shortUsername
+POST http://localhost:4111/api/v1/admin/users
+Content-Type: application/json
+Accept: application/json
+Authorization: Basic YWRtaW46YWRtaW4=
+
+{
+  "username": "us",
+  "password": "Password11!",
+  "role": "USER"
+}
+
+### Negative adminCanNotUserWithInvalidData usernameWithSpace
+POST http://localhost:4111/api/v1/admin/users
+Content-Type: application/json
+Accept: application/json
+Authorization: Basic YWRtaW46YWRtaW4=
+
+{
+  "username": "use r",
+  "password": "Password11!",
+  "role": "USER"
+}
+
+### Negative adminCanNotUserWithInvalidData usernameWithSymbol
+POST http://localhost:4111/api/v1/admin/users
+Content-Type: application/json
+Accept: application/json
+Authorization: Basic YWRtaW46YWRtaW4=
+
+{
+  "username": "use@r",
+  "password": "Password11!",
+  "role": "USER"
+}
+
+// CreateAccountTest
+### Positive userCanGenerateAccount createUser
+POST http://localhost:4111/api/v1/admin/users
+Content-Type: application/json
+Accept: application/json
+Authorization: Basic YWRtaW46YWRtaW4=
+
+{
+  "username": "user3",
+  "password": "Password11!",
+  "role": "USER"
+}
+
+### Positive userCanGenerateAccount loginUser
+POST http://localhost:4111/api/v1/auth/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "username": "user3",
+  "password": "Password11!"
+}
+
+### Positive userCanGenerateAccount createAccount
+POST http://localhost:4111/api/v1/accounts
+Content-Type: application/json
+Accept: application/json
+Authorization: Basic <user3_token>
+
+{
+}
+
+### Positive userCanGenerateAccount verifyAccountInList
+GET http://localhost:4111/api/v1/customer/accounts
+Content-Type: application/json
+Accept: application/json
+Authorization: Basic <user3_token>

@@ -1,0 +1,223 @@
+//Итерация 2
+//DepositTest
+### Positive Пополнение баланса минимально допустимой суммой (0.01)
+POST http://localhost:4111/api/v1/accounts/deposit
+Content-Type: application/json
+Authorization: Basic dXNlcjE6dXNlcjE=
+
+{
+  "id": 6,
+  "balance": 0.01
+}
+
+### Positive Пополнение баланса средней допустимой суммой (200.00)
+POST http://localhost:4111/api/v1/accounts/deposit
+Content-Type: application/json
+Authorization: Basic dXNlcjE6dXNlcjE=
+
+{
+  "id": 6,
+  "balance": 200.00
+}
+
+### Positive Пополнение баланса максимально допустимой суммой (5000.00)
+POST http://localhost:4111/api/v1/accounts/deposit
+Content-Type: application/json
+Authorization: Basic dXNlcjE6dXNlcjE=
+
+{
+  "id": 6,
+  "balance": 5000.00
+}
+
+### Negative Пополнение баланса некорректной суммой (-0.01)
+POST http://localhost:4111/api/v1/accounts/deposit
+Content-Type: application/json
+Authorization: Basic dXNlcjE6dXNlcjE=
+
+{
+  "id": 6,
+  "balance": -0.01
+}
+
+### Negative Пополнение баланса некорректной суммой (0)
+POST http://localhost:4111/api/v1/accounts/deposit
+Content-Type: application/json
+Authorization: Basic dXNlcjE6dXNlcjE=
+
+{
+  "id": 6,
+  "balance": 0
+}
+
+### Negative Пополнение баланса превышающей лимит суммой (5000.01)
+POST http://localhost:4111/api/v1/accounts/deposit
+Content-Type: application/json
+Authorization: Basic dXNlcjE6dXNlcjE=
+
+{
+  "id": 6,
+  "balance": 5000.01
+}
+
+### Negative Пополнение чужого аккаунта
+POST http://localhost:4111/api/v1/accounts/deposit
+Content-Type: application/json
+Authorization: Basic dXNlcjE6dXNlcjE=
+
+{
+  "id": 7,
+  "balance": 100
+}
+
+### Negative Пополнение несуществующего аккаунта
+POST http://localhost:4111/api/v1/accounts/deposit
+Content-Type: application/json
+Authorization: Basic dXNlcjE6dXNlcjE=
+
+{
+  "id": 9999,
+  "balance": 100
+}
+
+// ProfileNameTest
+### Positive Изменение имени профиля корректное
+PUT http://localhost:4111/api/v1/customer/profile
+Content-Type: application/json
+Authorization: Basic dXNlcjE6dXNlcjE=
+
+{
+  "name": "Test Testov"
+}
+
+### Negative Имя из одного слова
+PUT http://localhost:4111/api/v1/customer/profile
+Content-Type: application/json
+Authorization: Basic dXNlcjE6dXNlcjE=
+
+{
+  "name": "Test"
+}
+
+### Negative Имя со спецсимволом
+PUT http://localhost:4111/api/v1/customer/profile
+Content-Type: application/json
+Authorization: Basic dXNlcjE6dXNlcjE=
+
+{
+  "name": "Test Smith!"
+}
+
+### Negative Имя — пустая строка
+PUT http://localhost:4111/api/v1/customer/profile
+Content-Type: application/json
+Authorization: Basic dXNlcjE6dXNlcjE=
+
+{
+  "name": " "
+}
+
+### Negative Имя начинается с пробела (" Test")
+PUT http://localhost:4111/api/v1/customer/profile
+Content-Type: application/json
+Authorization: Basic dXNlcjE6dXNlcjE=
+
+{
+  "name": " Test"
+}
+
+### Negative Имя с двумя пробелами между словами
+PUT http://localhost:4111/api/v1/customer/profile
+Content-Type: application/json
+Authorization: Basic dXNlcjE6dXNlcjE=
+
+{
+  "name": "Test  Test"
+}
+
+### Negative Имя с пробелом в конце
+PUT http://localhost:4111/api/v1/customer/profile
+Content-Type: application/json
+Authorization: Basic dXNlcjE6dXNlcjE=
+
+{
+  "name": "Test "
+}
+
+// TransferTest
+### Positive Успешный перевод минимальной суммы (0.01)
+POST http://localhost:4111/api/v1/accounts/transfer
+Content-Type: application/json
+Authorization: Basic dXNlcjE6dXNlcjE=
+
+{
+  "senderAccountId": 6,
+  "receiverAccountId": 7,
+  "amount": 0.01
+}
+
+### Positive Успешный перевод средней суммы (200.00)
+POST http://localhost:4111/api/v1/accounts/transfer
+Content-Type: application/json
+Authorization: Basic dXNlcjE6dXNlcjE=
+
+{
+  "senderAccountId": 6,
+  "receiverAccountId": 7,
+  "amount": 200.00
+}
+
+### Positive Успешный перевод максимально допустимой суммы (10000.00)
+POST http://localhost:4111/api/v1/accounts/transfer
+Content-Type: application/json
+Authorization: Basic dXNlcjE6dXNlcjE=
+
+{
+  "senderAccountId": 6,
+  "receiverAccountId": 7,
+  "amount": 10000.00
+}
+
+### Negative Перевод отрицательной суммы (-0.01)
+POST http://localhost:4111/api/v1/accounts/transfer
+Content-Type: application/json
+Authorization: Basic dXNlcjE6dXNlcjE=
+
+{
+  "senderAccountId": 6,
+  "receiverAccountId": 7,
+  "amount": -0.01
+}
+
+### Negative Перевод суммы, превышающей лимит (10000.1)
+POST http://localhost:4111/api/v1/accounts/transfer
+Content-Type: application/json
+Authorization: Basic dXNlcjE6dXNlcjE=
+
+{
+  "senderAccountId": 6,
+  "receiverAccountId": 7,
+  "amount": 10000.1
+}
+
+### Negative Перевод суммы, превышающей баланс отправителя
+POST http://localhost:4111/api/v1/accounts/transfer
+Content-Type: application/json
+Authorization: Basic dXNlcjE6dXNlcjE=
+
+{
+  "senderAccountId": 6,
+  "receiverAccountId": 7,
+  "amount": 100.00
+}
+
+### Negative Перевод на несуществующий аккаунт
+POST http://localhost:4111/api/v1/accounts/transfer
+Content-Type: application/json
+Authorization: Basic dXNlcjE6dXNlcjE=
+
+{
+  "senderAccountId": 6,
+  "receiverAccountId": 999,
+  "amount": 100.00
+}

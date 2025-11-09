@@ -21,7 +21,6 @@ import static org.hamcrest.Matchers.equalTo;
 @ExtendWith(RestAssuredSetupExtension.class)
 public class DepositTest {
 
-
     public static Stream<Arguments> amountCorrect() {
         return Stream.of(
                 Arguments.of(0.01),
