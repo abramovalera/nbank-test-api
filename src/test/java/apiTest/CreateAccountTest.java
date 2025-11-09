@@ -17,7 +17,6 @@ public class CreateAccountTest {
 
     @Test
     public void userCanGenerateAccount() {
-        // генерируем валидные данные
         String username = TestDataFactory.generateValidUsername();
         String password = TestDataFactory.generateValidPassword();
 
@@ -39,7 +38,6 @@ public class CreateAccountTest {
                 .statusCode(HttpStatus.SC_CREATED);
 
         // получаем токен юзера
-
         String userAuthHeader = given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
@@ -58,7 +56,6 @@ public class CreateAccountTest {
 
 
         // создаем аккаунт и сохраняем ID
-
         Integer createdAccountId = given()
                 .header("Authorization", userAuthHeader)
                 .contentType(ContentType.JSON)
@@ -73,7 +70,6 @@ public class CreateAccountTest {
 
 
         // убедиться, что аккаунт есть в общем списке
-
         List<Integer> allAccountIds = given()
                 .header("Authorization", userAuthHeader)
                 .get("http://localhost:4111/api/v1/customer/accounts")

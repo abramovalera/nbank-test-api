@@ -304,8 +304,8 @@ public class TransferTest {
     @Test
     public void transferAmountExceedingBalanceShouldFail() {
 
-        double initialBalance = 50.00;   // Баланс отправителя
-        double transferAmount = 100.00;  // Сумма перевода > баланса
+        double initialBalance = 50.00;// Баланс отправителя
+        double transferAmount = 100.00;// Сумма перевода > баланса
 
         String senderUsername = TestDataFactory.generateValidUsername();
         String senderPassword = TestDataFactory.generateValidPassword();

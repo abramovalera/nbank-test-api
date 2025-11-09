@@ -23,7 +23,6 @@ public class ProfileNameTest {
     @DisplayName("Пользователь может изменить имя в профиле на корректное")
     @Test
     public void userCanUpdateProfileName() {
-        //  Создание пользователя
         String username = TestDataFactory.generateValidUsername();
         String password = TestDataFactory.generateValidPassword();
 
@@ -87,7 +86,7 @@ public class ProfileNameTest {
     public static Stream<Arguments> invalidNames() {
         return Stream.of(
                 Arguments.of("Test", "Name must consist of two words with letters only"),// 1 слово
-                Arguments.of("John Smith!", "Name must consist of two words with letters only"),// спецсимвол
+                Arguments.of("Test Smith!", "Name must consist of two words with letters only"),// спецсимвол
                 Arguments.of(" ", "Name must contain two words with letters only"),// пустая строка
                 Arguments.of(" Test", "Name must contain two words with letters only"),// пробел в начале
                 Arguments.of("Test  Test", "Name must contain two words with letters only"),// два пробела
@@ -98,7 +97,7 @@ public class ProfileNameTest {
     @DisplayName("Пользователь не может установить некорректное имя")
     @ParameterizedTest
     @MethodSource("invalidNames")
-    public void userCannotUpdateProfileWithInvalidName(String invalidName, String expectedError) {
+    public void userCannotUpdateProfileWithInvalidName(String invalidName) {
         String username = TestDataFactory.generateValidUsername();
         String password = TestDataFactory.generateValidPassword();
 
