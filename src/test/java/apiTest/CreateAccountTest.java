@@ -84,6 +84,6 @@ public class CreateAccountTest {
                 .getList("id");
 
         assertTrue(allAccountIds.contains(createdAccountId),
-                "Созданный аккаунт должен присутствовать в общем списке");
+                "Созданный аккаунт должен присутствовать в списке");
     }
 }

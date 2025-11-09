@@ -10,6 +10,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import utils.RestAssuredSetupExtension;
+import utils.TestDataFactory;
 
 import java.util.stream.Stream;
 
@@ -20,24 +21,30 @@ public class CreateUserTest {
 
     @Test
     public void adminCanCreateUserWithCorrectData() {
+        String username = TestDataFactory.generateValidUsername();
+        String password = TestDataFactory.generateValidPassword();
+        String role = "USER";
+
+        String requestBody = String.format("""
+                {
+                  "username": "%s",
+                  "password": "%s",
+                  "role": "%s"
+                }
+                """, username, password, role);
+
         given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .header("Authorization", "Basic YWRtaW46YWRtaW4=")
-                .body("""
-                        {
-                          "username": "nova1",
-                          "password": "Nova123!1",
-                          "role": "USER"
-                        }
-                        """)
+                .body(requestBody)
                 .post("http://localhost:4111/api/v1/admin/users")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.SC_CREATED)
-                .body("username", Matchers.equalTo("nova1"))
-                .body("password", Matchers.not(Matchers.equalTo("Nova123!1")))
-                .body("role", Matchers.equalTo("USER"));
+                .body("username", Matchers.equalTo(username)) // проверяем, что вернулся именно наш username
+                .body("password", Matchers.not(Matchers.equalTo(password))) // пароль не должен храниться в открытом виде
+                .body("role", Matchers.equalTo(role));
     }
 
 
