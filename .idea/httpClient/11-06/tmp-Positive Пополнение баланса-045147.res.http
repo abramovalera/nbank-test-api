@@ -1,0 +1,18 @@
+// Status: 403, time: 81ms, size: 30 B
+### Positive Пополнение баланса
+POST http://localhost:4111/api/v1/accounts/deposit HTTP/1.1
+cache-control: no-cache, no-store, max-age=0, must-revalidate
+content-length: 30
+content-type: text/plain;charset=UTF-8
+date: Thu, 06 Nov 2025 13:51:47 GMT
+expires: 0
+pragma: no-cache
+vary: Origin
+vary: Access-Control-Request-Method
+vary: Access-Control-Request-Headers
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-xss-protection: 0
+
+Unauthorized access to account
+>> C:\Users\V\IdeaProjects\nbank-test-api\.idea\httpClient\11-06\Positive Пополнение баланса\2025-11-06T165147.txt

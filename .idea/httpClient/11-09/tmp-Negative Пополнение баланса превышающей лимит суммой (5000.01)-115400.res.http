@@ -1,0 +1,19 @@
+// Status: 401, time: 86ms, size: 0 B
+### Negative Пополнение баланса превышающей лимит суммой (5000.01)
+POST http://localhost:4111/api/v1/accounts/deposit HTTP/1.1
+cache-control: no-cache, no-store, max-age=0, must-revalidate
+content-length: 0
+date: Sun, 09 Nov 2025 08:54:00 GMT
+expires: 0
+pragma: no-cache
+set-cookie: JSESSIONID=91D94AFA494CDA3612BE782924C8A3F2; Path=/; HttpOnly
+vary: Origin
+vary: Access-Control-Request-Method
+vary: Access-Control-Request-Headers
+www-authenticate: Basic realm="Realm"
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-xss-protection: 0
+
+
+>> C:\Users\V\IdeaProjects\nbank-test-api\.idea\httpClient\11-09\Negative Пополнение баланса превышающей лимит суммой (5000.01)\2025-11-09T115400.txt

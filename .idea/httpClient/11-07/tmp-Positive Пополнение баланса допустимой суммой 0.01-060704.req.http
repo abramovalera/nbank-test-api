@@ -1,0 +1,13 @@
+// Size: 110 B
+### Positive Пополнение баланса допустимой суммой 0.01
+POST http://localhost:4111/api/v1/accounts/deposit HTTP/1.1
+Authorization: Basic <user-token>
+Content-Type: application/json
+Content-Length: 110
+
+{
+  "id": <accountId>,
+  "balance": 0.01
+}
+
+# Expected: Status 200 OK, баланс увеличен на 0.01

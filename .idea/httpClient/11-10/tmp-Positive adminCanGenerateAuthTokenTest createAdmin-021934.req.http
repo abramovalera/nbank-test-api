@@ -1,0 +1,11 @@
+// Size: 48 B
+### Positive adminCanGenerateAuthTokenTest createAdmin
+POST http://localhost:4111/api/v1/auth/login HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+Content-Length: 48
+
+{
+  "username": "admin",
+  "password": "admin"
+}

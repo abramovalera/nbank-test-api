@@ -40,7 +40,7 @@ Accept: application/json
 Authorization: Basic YWRtaW46YWRtaW4=
 
 {
-  "username": "user2",
+  "username": "gdffger",
   "password": "Password11!",
   "role": "USER"
 }
@@ -120,8 +120,7 @@ Accept: application/json
 POST http://localhost:4111/api/v1/accounts
 Content-Type: application/json
 Accept: application/json
-Authorization: Basic <user3_token>
-
+Authorization: Basic
 {
 }
 
@@ -129,4 +128,4 @@ Authorization: Basic <user3_token>
 GET http://localhost:4111/api/v1/customer/accounts
 Content-Type: application/json
 Accept: application/json
-Authorization: Basic <user3_token>
+Authorization: Basic

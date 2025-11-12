@@ -1,0 +1,10 @@
+// Size: 49 B
+### Positive Авторизация admin для получения токена
+POST http://localhost:4111/api/v1/auth/login HTTP/1.1
+Content-Type: application/json
+Content-Length: 49
+
+{
+  "username": "admin",
+  "password": "admin"
+}

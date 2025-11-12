@@ -1,85 +1,57 @@
 package apiTest;
 
-import io.restassured.http.ContentType;
-import org.apache.http.HttpStatus;
+import generators.RandomData;
+import models.AccountResponse;
+import models.CreateUserRequest;
+import models.UserRole;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import utils.RestAssuredSetupExtension;
-import utils.TestDataFactory;
+import requests.AdminCreateUserRequester;
+import requests.CreateAccountRequester;
+import requests.GetCustomerAccountsRequester;
+import specs.RequestSpecs;
+import specs.ResponseSpecs;
 
 import java.util.List;
 
-import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+public class CreateAccountTest extends BaseTest {
 
-@ExtendWith(RestAssuredSetupExtension.class)
-public class CreateAccountTest {
-
+    @DisplayName("Пользователь может создать аккаунт")
     @Test
-    public void userCanGenerateAccount() {
-        String username = TestDataFactory.generateValidUsername();
-        String password = TestDataFactory.generateValidPassword();
+    public void userCanCreateAccountTest() {
 
-        //создание пользователя
-        given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .header("Authorization", "Basic YWRtaW46YWRtaW4=")
-                .body("""
-                        {
-                          "username": "%s",
-                          "password": "%s",
-                          "role": "USER"
-                        }
-                        """.formatted(username, password))
-                .post("http://localhost:4111/api/v1/admin/users")
-                .then()
-                .assertThat()
-                .statusCode(HttpStatus.SC_CREATED);
+        // Создаём нового пользователя
+        CreateUserRequest userRequest = CreateUserRequest.builder()
+                .username(RandomData.getUsername())
+                .password(RandomData.getPassword())
+                .role(UserRole.USER.toString())
+                .build();
 
-        // получаем токен юзера
-        String userAuthHeader = given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body("""
-                        {
-                          "username": "%s",
-                          "password": "%s"
-                        }
-                        """.formatted(username, password))
-                .post("http://localhost:4111/api/v1/auth/login")
-                .then()
-                .assertThat()
-                .statusCode(HttpStatus.SC_OK)
+        new AdminCreateUserRequester(
+                RequestSpecs.adminSpec(),
+                ResponseSpecs.entityWasCreated())
+                .post(userRequest);
+
+        // создаём аккаунт под этим пользователем
+        int createdAccountId = new CreateAccountRequester(
+                RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+                ResponseSpecs.entityWasCreated())
+                .post(null)
                 .extract()
-                .header("Authorization");
+                .path("id");
 
-
-        // создаем аккаунт и сохраняем ID
-        Integer createdAccountId = given()
-                .header("Authorization", userAuthHeader)
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .post("http://localhost:4111/api/v1/accounts")
-                .then()
-                .assertThat()
-                .statusCode(HttpStatus.SC_CREATED)
+        // Получаем все аккаунты пользователя
+        List<AccountResponse> accounts = new GetCustomerAccountsRequester(
+                RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword()),
+                ResponseSpecs.requestReturnsOK())
+                .get()
                 .extract()
                 .jsonPath()
-                .getInt("id");
+                .getList(".", AccountResponse.class);
 
-
-        // убедиться, что аккаунт есть в общем списке
-        List<Integer> allAccountIds = given()
-                .header("Authorization", userAuthHeader)
-                .get("http://localhost:4111/api/v1/customer/accounts")
-                .then()
-                .statusCode(HttpStatus.SC_OK)
-                .extract()
-                .jsonPath()
-                .getList("id");
-
-        assertTrue(allAccountIds.contains(createdAccountId),
-                "Созданный аккаунт должен присутствовать в списке");
+        // Проверяем, что созданный аккаунт есть в списке
+        softly.assertThat(accounts)
+                .extracting(AccountResponse::getId)
+                .contains((long) createdAccountId);
     }
 }

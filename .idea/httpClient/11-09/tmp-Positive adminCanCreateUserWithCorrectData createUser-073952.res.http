@@ -1,0 +1,26 @@
+// Status: 201, time: 137ms, size: 145 B
+### Positive adminCanCreateUserWithCorrectData createUser
+POST http://localhost:4111/api/v1/admin/users HTTP/1.1
+authorization: Basic dXNlcjIyMjpQYXNzd29yZDExIQ==
+cache-control: no-cache, no-store, max-age=0, must-revalidate
+content-type: application/json
+date: Sun, 09 Nov 2025 16:39:52 GMT
+expires: 0
+pragma: no-cache
+transfer-encoding: chunked
+vary: Origin
+vary: Access-Control-Request-Method
+vary: Access-Control-Request-Headers
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-xss-protection: 0
+
+{
+  "id": 281,
+  "username": "user222",
+  "password": "$2a$10$Op.iy5NnizcFeGOLBZ702Oi2WyiYm5Zoi1a7aOzqF.xOB/LPjC07u",
+  "name": null,
+  "role": "USER",
+  "accounts": []
+}
+>> C:\Users\V\IdeaProjects\nbank-test-api\.idea\httpClient\11-09\Positive adminCanCreateUserWithCorrectData createUser\2025-11-09T193952.json

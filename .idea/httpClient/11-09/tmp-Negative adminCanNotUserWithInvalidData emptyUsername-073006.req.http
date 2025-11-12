@@ -1,0 +1,13 @@
+// Size: 67 B
+### Negative adminCanNotUserWithInvalidData emptyUsername
+POST http://localhost:4111/api/v1/admin/users HTTP/1.1
+Accept: application/json
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+Content-Length: 67
+
+{
+  "username": "",
+  "password": "Password11!",
+  "role": "USER"
+}
