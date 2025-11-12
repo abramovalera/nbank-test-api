@@ -1,147 +1,94 @@
 package apiTest;
 
-import io.restassured.http.ContentType;
-import org.apache.http.HttpStatus;
+import generators.RandomData;
+import models.CreateUserRequest;
+import models.UpdateProfileRequest;
+import models.UpdateProfileResponse;
+import models.UserRole;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import utils.RestAssuredSetupExtension;
-import utils.TestDataFactory;
+import requests.AdminCreateUserRequester;
+import requests.UpdateProfileRequester;
+import specs.RequestSpecs;
+import specs.ResponseSpecs;
 
 import java.util.stream.Stream;
 
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-
-@ExtendWith(RestAssuredSetupExtension.class)
-public class ProfileNameTest {
+public class ProfileNameTest extends BaseTest {
 
     @DisplayName("Пользователь может изменить имя в профиле на корректное")
     @Test
     public void userCanUpdateProfileNameTest() {
-        String username = TestDataFactory.generateValidUsername();
-        String password = TestDataFactory.generateValidPassword();
+        // Создание пользователя
+        CreateUserRequest user = CreateUserRequest.builder()
+                .username(RandomData.getUsername())
+                .password(RandomData.getPassword())
+                .role(UserRole.USER.toString())
+                .build();
 
-        given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .header("Authorization", "Basic YWRtaW46YWRtaW4=")
-                .body("""
-                        {
-                          "username": "%s",
-                          "password": "%s",
-                          "role": "USER"
-                        }
-                        """.formatted(username, password))
-                .post("http://localhost:4111/api/v1/admin/users")
-                .then().statusCode(HttpStatus.SC_CREATED);
+        new AdminCreateUserRequester(
+                RequestSpecs.adminSpec(),
+                ResponseSpecs.entityWasCreated())
+                .post(user);
 
-        //  Логин пользователя
-        String userAuth = given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body("""
-                        {
-                          "username": "%s",
-                          "password": "%s"
-                        }
-                        """.formatted(username, password))
-                .post("http://localhost:4111/api/v1/auth/login")
-                .then().statusCode(HttpStatus.SC_OK)
-                .extract().header("Authorization");
+        // Авторизация
+        var userSpec = RequestSpecs.authAsUser(user.getUsername(), user.getPassword());
 
-        //  Изменение имени
+        // Изменение имени
         String newName = "Test Testov";
-        given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .header("Authorization", userAuth)
-                .body("""
-                        {
-                          "name": "%s"
-                        }
-                        """.formatted(newName))
-                .put("http://localhost:4111/api/v1/customer/profile")
-                .then()
-                .statusCode(HttpStatus.SC_OK)
-                .body("message", equalTo("Profile updated successfully"))
-                .body("customer.name", equalTo(newName));
+        UpdateProfileResponse response = new UpdateProfileRequester(
+                userSpec,
+                ResponseSpecs.requestReturnsOKWithMessage("Profile updated successfully"))
+                .put(UpdateProfileRequest.builder().name(newName).build())
+                .extract().as(UpdateProfileResponse.class);
 
-        //  Проверка изменения имени
-        given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .header("Authorization", userAuth)
-                .get("http://localhost:4111/api/v1/customer/profile")
-                .then()
-                .statusCode(HttpStatus.SC_OK)
-                .body("name", equalTo(newName));
+        // Проверки
+        softly.assertThat(response.getCustomer().getName()).isEqualTo(newName);
+        softly.assertThat(response.getMessage()).isEqualTo("Profile updated successfully");
+
+        // Проверка профиля GET-запросом
+        new UpdateProfileRequester(
+                userSpec,
+                ResponseSpecs.requestReturnsOK())
+                .getProfile()
+                .body("name", org.hamcrest.Matchers.equalTo(newName));
     }
-
 
     public static Stream<Arguments> invalidNames() {
         return Stream.of(
-                Arguments.of("Test", "Name must consist of two words with letters only"),// 1 слово
-                Arguments.of("Test Smith!", "Name must consist of two words with letters only"),// спецсимвол
-                Arguments.of(" ", "Name must contain two words with letters only"),// пустая строка
-                Arguments.of(" Test", "Name must contain two words with letters only"),// пробел в начале
-                Arguments.of("Test  Test", "Name must contain two words with letters only"),// два пробела
-                Arguments.of("Test ", "Name must contain two words with letters only")// одно слово + пробел
+                Arguments.of("Test", "Name must consist of two words with letters only"),
+                Arguments.of("Test Smith!", "Name must consist of two words with letters only"),
+                Arguments.of(" ", "Name must contain two words with letters only"),
+                Arguments.of(" Test", "Name must contain two words with letters only"),
+                Arguments.of("Test  Test", "Name must contain two words with letters only"),
+                Arguments.of("Test ", "Name must contain two words with letters only")
         );
     }
 
     @DisplayName("Пользователь не может установить некорректное имя")
     @ParameterizedTest
     @MethodSource("invalidNames")
-    public void userCannotUpdateProfileWithInvalidNameTest(String invalidName) {
-        String username = TestDataFactory.generateValidUsername();
-        String password = TestDataFactory.generateValidPassword();
+    public void userCannotUpdateProfileWithInvalidNameTest(String invalidName, String expectedMessage) {
+        // Создание пользователя
+        CreateUserRequest user = CreateUserRequest.builder()
+                .username(RandomData.getUsername())
+                .password(RandomData.getPassword())
+                .role(UserRole.USER.toString())
+                .build();
 
-        given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .header("Authorization", "Basic YWRtaW46YWRtaW4=")
-                .body("""
-                        {
-                          "username": "%s",
-                          "password": "%s",
-                          "role": "USER"
-                        }
-                        """.formatted(username, password))
-                .post("http://localhost:4111/api/v1/admin/users")
-                .then().statusCode(HttpStatus.SC_CREATED);
+        new AdminCreateUserRequester(RequestSpecs.adminSpec(), ResponseSpecs.entityWasCreated())
+                .post(user);
 
-        //  Логин пользователя
-        String userAuth = given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body("""
-                        {
-                          "username": "%s",
-                          "password": "%s"
-                        }
-                        """.formatted(username, password))
-                .post("http://localhost:4111/api/v1/auth/login")
-                .then().statusCode(HttpStatus.SC_OK)
-                .extract().header("Authorization");
+        // Авторизация
+        var userSpec = RequestSpecs.authAsUser(user.getUsername(), user.getPassword());
 
-        // обновления профиля с некорректным именем
-        given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .header("Authorization", userAuth)
-                .body("""
-                        {
-                          "name": "%s"
-                        }
-                        """.formatted(invalidName))
-                .put("http://localhost:4111/api/v1/customer/profile")
-                .then()
-                .statusCode(HttpStatus.SC_BAD_REQUEST)
-                .body(containsString("Name must contain two words with letters only"));
+        // Попытка обновления имени
+        new UpdateProfileRequester(
+                userSpec,
+                ResponseSpecs.requestReturnsBadRequestPlainTextContaining(expectedMessage))
+                .put(UpdateProfileRequest.builder().name(invalidName).build());
     }
 }

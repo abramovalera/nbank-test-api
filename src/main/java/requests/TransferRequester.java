@@ -3,25 +3,23 @@ package requests;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
+import models.TransferRequest;
 
 import static io.restassured.RestAssured.given;
 
-public class GetAccountsRequester extends Request {
+public class TransferRequester extends Request<TransferRequest> {
 
-    public GetAccountsRequester(RequestSpecification requestSpecification,
-                                ResponseSpecification responseSpecification) {
+    public TransferRequester(RequestSpecification requestSpecification,
+                             ResponseSpecification responseSpecification) {
         super(requestSpecification, responseSpecification);
     }
 
     @Override
-    public ValidatableResponse post(models.BaseModel model) {
-        throw new UnsupportedOperationException("GET-запрос не использует BaseModel");
-    }
-
-    public ValidatableResponse get() {
+    public ValidatableResponse post(TransferRequest model) {
         return given()
                 .spec(requestSpecification)
-                .get("/api/v1/accounts")
+                .body(model)
+                .post("/api/v1/accounts/transfer")
                 .then()
                 .assertThat()
                 .spec(responseSpecification);
