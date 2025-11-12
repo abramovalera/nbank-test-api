@@ -32,7 +32,7 @@ public class DepositTest {
     @DisplayName("Пополнение счета допустимые значения ")
     @MethodSource("amountCorrect")
     @ParameterizedTest
-    public void userCanMakeDepositWithCorrectAmount(double amount) {
+    public void userCanMakeDepositWithCorrectAmountTest(double amount) {
         // генерируем валидные данные
         String username = TestDataFactory.generateValidUsername();
         String password = TestDataFactory.generateValidPassword();
@@ -117,7 +117,7 @@ public class DepositTest {
     @DisplayName("Пополнение счета не допустимые значения ")
     @MethodSource("amountInvalid")
     @ParameterizedTest
-    public void userCanMakeDepositWithInvalidAmount(double amount, String expectedErrorMessage) {
+    public void userCanMakeDepositWithInvalidAmountTest(double amount, String expectedErrorMessage) {
         // генерируем валидные данные
         String username = TestDataFactory.generateValidUsername();
         String password = TestDataFactory.generateValidPassword();
@@ -187,7 +187,7 @@ public class DepositTest {
 
     @DisplayName("Невозможно сделать депозит в чужой аккаунт")
     @Test
-    public void userCannotDepositToOtherUserAccount() {
+    public void userCannotDepositToOtherUserAccountTest() {
         //  Создание первого пользователя
         String username1 = TestDataFactory.generateValidUsername();
         String password1 = TestDataFactory.generateValidPassword();
@@ -278,8 +278,8 @@ public class DepositTest {
 
     @DisplayName("Невозможно сделать депозит в несуществующий аккаунт")
     @Test
-    public void userCannotDepositToNonExistentAccount() {
-        // ---------- Создание пользователя ----------
+    public void userCannotDepositToNonExistentAccountTest() {
+        //  Создание пользователя
         String username = TestDataFactory.generateValidUsername();
         String password = TestDataFactory.generateValidPassword();
 
@@ -297,7 +297,7 @@ public class DepositTest {
                 .post("http://localhost:4111/api/v1/admin/users")
                 .then().statusCode(HttpStatus.SC_CREATED);
 
-        // ---------- Логин пользователя ----------
+        //  Логин пользователя
         String userAuth = given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
@@ -311,7 +311,7 @@ public class DepositTest {
                 .then().statusCode(HttpStatus.SC_OK)
                 .extract().header("Authorization");
 
-        // ---------- Создание реального аккаунта ----------
+        //  Создание реального аккаунта
         int realAccountId = given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
@@ -320,7 +320,7 @@ public class DepositTest {
                 .then().statusCode(HttpStatus.SC_CREATED)
                 .extract().path("id");
 
-        // ---------- Попытка депозита в несуществующий аккаунт ----------
+        //  Попытка депозита в несуществующий аккаунт
         int nonExistentAccountId = realAccountId + 100; // гарантированно несуществующий
         given()
                 .contentType(ContentType.JSON)

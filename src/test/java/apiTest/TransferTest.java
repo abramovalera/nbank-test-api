@@ -32,7 +32,7 @@ public class TransferTest {
     @DisplayName("Успешный перевод на другой аккаунт")
     @MethodSource("amountCorrect")
     @ParameterizedTest
-    public void userCanTransferMoneySuccessfullyParameterized(double transferAmount) {
+    public void userCanTransferMoneyTest(double transferAmount) {
 
         // Создание отправителя
         String senderUsername = TestDataFactory.generateValidUsername();
@@ -200,7 +200,7 @@ public class TransferTest {
     @DisplayName("Перевод недопустимой суммы на другой аккаунт")
     @MethodSource("invalidAmounts")
     @ParameterizedTest
-    public void userCannotTransferInvalidAmount(double transferAmount, String expectedMessage) {
+    public void userCannotTransferInvalidAmountTest(double transferAmount, String expectedMessage) {
 
         //  Создание отправителя
         String senderUsername = TestDataFactory.generateValidUsername();
@@ -302,7 +302,7 @@ public class TransferTest {
 
     @DisplayName("Перевод суммы, превышающей баланс отправителя")
     @Test
-    public void transferAmountExceedingBalanceShouldFail() {
+    public void transferAmountExceedingBalanceShouldFailTest() {
 
         double initialBalance = 50.00;// Баланс отправителя
         double transferAmount = 100.00;// Сумма перевода > баланса

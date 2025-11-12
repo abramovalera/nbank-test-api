@@ -22,7 +22,7 @@ public class ProfileNameTest {
 
     @DisplayName("Пользователь может изменить имя в профиле на корректное")
     @Test
-    public void userCanUpdateProfileName() {
+    public void userCanUpdateProfileNameTest() {
         String username = TestDataFactory.generateValidUsername();
         String password = TestDataFactory.generateValidPassword();
 
@@ -97,7 +97,7 @@ public class ProfileNameTest {
     @DisplayName("Пользователь не может установить некорректное имя")
     @ParameterizedTest
     @MethodSource("invalidNames")
-    public void userCannotUpdateProfileWithInvalidName(String invalidName) {
+    public void userCannotUpdateProfileWithInvalidNameTest(String invalidName) {
         String username = TestDataFactory.generateValidUsername();
         String password = TestDataFactory.generateValidPassword();
 
