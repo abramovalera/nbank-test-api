@@ -1,0 +1,10 @@
+// Size: 20 B
+### Negative Имя из одного слова (Test)
+PUT http://localhost:4111/api/v1/customer/profile HTTP/1.1
+Authorization: Basic dXNlcjE6dXNlcjE=
+Content-Type: application/json
+Content-Length: 20
+
+{
+  "name": "Test"
+}

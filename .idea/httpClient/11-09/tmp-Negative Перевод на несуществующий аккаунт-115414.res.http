@@ -1,0 +1,19 @@
+// Status: 401, time: 80ms, size: 0 B
+### Negative Перевод на несуществующий аккаунт
+POST http://localhost:4111/api/v1/accounts/transfer HTTP/1.1
+cache-control: no-cache, no-store, max-age=0, must-revalidate
+content-length: 0
+date: Sun, 09 Nov 2025 08:54:14 GMT
+expires: 0
+pragma: no-cache
+set-cookie: JSESSIONID=EE8DF8066D198B9D4A00BBAF19705FAF; Path=/; HttpOnly
+vary: Origin
+vary: Access-Control-Request-Method
+vary: Access-Control-Request-Headers
+www-authenticate: Basic realm="Realm"
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-xss-protection: 0
+
+
+>> C:\Users\V\IdeaProjects\nbank-test-api\.idea\httpClient\11-09\Negative Перевод на несуществующий аккаунт\2025-11-09T115414.txt

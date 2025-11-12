@@ -1,0 +1,9 @@
+// Status: 401, time: 61ms, size: 0 B
+### Positive Пополнение баланса
+POST http://localhost:4111//api/v1/accounts/deposit HTTP/1.1
+content-length: 0
+date: Thu, 06 Nov 2025 13:48:37 GMT
+set-cookie: JSESSIONID=21B518ACFBFD43017A346EF197F02BAC; Path=/; HttpOnly
+
+
+>> C:\Users\V\IdeaProjects\nbank-test-api\.idea\httpClient\11-06\Positive Пополнение баланса\2025-11-06T164837.txt

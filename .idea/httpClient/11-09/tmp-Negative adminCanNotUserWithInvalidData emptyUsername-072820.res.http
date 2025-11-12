@@ -1,0 +1,25 @@
+// Status: 400, time: 90ms, size: 164 B
+### Negative adminCanNotUserWithInvalidData emptyUsername
+POST http://localhost:4111/api/v1/admin/users HTTP/1.1
+cache-control: no-cache, no-store, max-age=0, must-revalidate
+connection: close
+content-type: application/json
+date: Sun, 09 Nov 2025 16:28:20 GMT
+expires: 0
+pragma: no-cache
+transfer-encoding: chunked
+vary: Origin
+vary: Access-Control-Request-Method
+vary: Access-Control-Request-Headers
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-xss-protection: 0
+
+{
+  "username": [
+    "Username must be between 3 and 15 characters",
+    "Username cannot be blank",
+    "Username must contain only letters, digits, dashes, underscores, and dots"
+  ]
+}
+>> C:\Users\V\IdeaProjects\nbank-test-api\.idea\httpClient\11-09\Negative adminCanNotUserWithInvalidData emptyUsername\2025-11-09T192820.json

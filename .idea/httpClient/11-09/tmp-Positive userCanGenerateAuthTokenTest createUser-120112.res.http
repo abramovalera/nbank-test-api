@@ -1,0 +1,26 @@
+// Status: 201, time: 138ms, size: 143 B
+### Positive userCanGenerateAuthTokenTest createUser
+POST http://localhost:4111/api/v1/admin/users HTTP/1.1
+authorization: Basic dXNlcjE6UGFzc3dvcmQxMSE=
+cache-control: no-cache, no-store, max-age=0, must-revalidate
+content-type: application/json
+date: Sun, 09 Nov 2025 09:01:12 GMT
+expires: 0
+pragma: no-cache
+transfer-encoding: chunked
+vary: Origin
+vary: Access-Control-Request-Method
+vary: Access-Control-Request-Headers
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-xss-protection: 0
+
+{
+  "id": 277,
+  "username": "user1",
+  "password": "$2a$10$S3VgkI48p0DsSc3UtkX5AeSpDVn6oB.7H1PAVM.9LFpai3xJ5/Cse",
+  "name": null,
+  "role": "USER",
+  "accounts": []
+}
+>> C:\Users\V\IdeaProjects\nbank-test-api\.idea\httpClient\11-09\Positive userCanGenerateAuthTokenTest createUser\2025-11-09T120112.json
