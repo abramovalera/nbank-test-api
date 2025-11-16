@@ -1,8 +1,0 @@
-// Size: 0 B
-### Positive userCanGenerateAccount verifyAccountInList
-GET http://localhost:4111/api/v1/customer/accounts HTTP/1.1
-Accept: application/json
-Authorization: Basic <user3_token>
-Content-Type: application/json
-Content-Length: 0
-
