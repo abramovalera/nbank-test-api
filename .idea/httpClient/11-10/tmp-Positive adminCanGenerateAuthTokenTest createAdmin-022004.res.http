@@ -1,0 +1,22 @@
+// Status: 200, time: 78ms, size: 35 B
+### Positive adminCanGenerateAuthTokenTest createAdmin
+POST http://localhost:4111/api/v1/auth/login HTTP/1.1
+authorization: Basic YWRtaW46YWRtaW4=
+cache-control: no-cache, no-store, max-age=0, must-revalidate
+content-type: application/json
+date: Mon, 10 Nov 2025 11:20:04 GMT
+expires: 0
+pragma: no-cache
+transfer-encoding: chunked
+vary: Origin
+vary: Access-Control-Request-Method
+vary: Access-Control-Request-Headers
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-xss-protection: 0
+
+{
+  "role": "ADMIN",
+  "username": "admin"
+}
+>> C:\Users\V\IdeaProjects\nbank-test-api\.idea\httpClient\11-10\Positive adminCanGenerateAuthTokenTest createAdmin\2025-11-10T142004.json

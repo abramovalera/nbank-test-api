@@ -1,0 +1,19 @@
+// Status: 401, time: 88ms, size: 0 B
+### Negative Имя со спецсимволом
+PUT http://localhost:4111/api/v1/customer/profile HTTP/1.1
+cache-control: no-cache, no-store, max-age=0, must-revalidate
+content-length: 0
+date: Sun, 09 Nov 2025 08:53:27 GMT
+expires: 0
+pragma: no-cache
+set-cookie: JSESSIONID=AD201CD205FD169717FE3133B62E4369; Path=/; HttpOnly
+vary: Origin
+vary: Access-Control-Request-Method
+vary: Access-Control-Request-Headers
+www-authenticate: Basic realm="Realm"
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-xss-protection: 0
+
+
+>> C:\Users\V\IdeaProjects\nbank-test-api\.idea\httpClient\11-09\Negative Имя со спецсимволом\2025-11-09T115327.txt

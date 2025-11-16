@@ -1,25 +1,19 @@
 package apiTest;
 
-import io.restassured.http.ContentType;
-import org.apache.http.HttpStatus;
+import generators.RandomData;
+import models.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import utils.RestAssuredSetupExtension;
-import utils.TestDataFactory;
+import requests.*;
+import specs.RequestSpecs;
+import specs.ResponseSpecs;
 
 import java.util.stream.Stream;
 
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-
-@ExtendWith(RestAssuredSetupExtension.class)
-public class TransferTest {
+public class TransferTest extends BaseTest {
 
     public static Stream<Arguments> amountCorrect() {
         return Stream.of(
@@ -32,162 +26,70 @@ public class TransferTest {
     @DisplayName("Успешный перевод на другой аккаунт")
     @MethodSource("amountCorrect")
     @ParameterizedTest
-    public void userCanTransferMoneySuccessfullyParameterized(double transferAmount) {
+    public void userCanTransferMoneyTest(double transferAmount) {
 
-        // Создание отправителя
-        String senderUsername = TestDataFactory.generateValidUsername();
-        String senderPassword = TestDataFactory.generateValidPassword();
+        // Создаём отправителя
+        CreateUserRequest sender = CreateUserRequest.builder()
+                .username(RandomData.getUsername())
+                .password(RandomData.getPassword())
+                .role(UserRole.USER.toString())
+                .build();
 
-        given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .header("Authorization", "Basic YWRtaW46YWRtaW4=")
-                .body("""
-                        {
-                          "username": "%s",
-                          "password": "%s",
-                          "role": "USER"
-                        }
-                        """.formatted(senderUsername, senderPassword))
-                .post("http://localhost:4111/api/v1/admin/users")
-                .then()
-                .statusCode(HttpStatus.SC_CREATED);
+        new AdminCreateUserRequester(
+                RequestSpecs.adminSpec(),
+                ResponseSpecs.entityWasCreated())
+                .post(sender);
 
-        // Логин отправителя
-        String senderAuthHeader = given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body("""
-                        {
-                          "username": "%s",
-                          "password": "%s"
-                        }
-                        """.formatted(senderUsername, senderPassword))
-                .post("http://localhost:4111/api/v1/auth/login")
-                .then()
-                .statusCode(HttpStatus.SC_OK)
+        // Создаём аккаунт отправителя
+        int senderAccountId = new CreateAccountRequester(
+                RequestSpecs.authAsUser(sender.getUsername(), sender.getPassword()),
+                ResponseSpecs.entityWasCreated())
+                .post(null)
+                .extract().path("id");
+
+        // Пополняем счёт отправителя дважды по 5000
+        DepositRequester depositRequester = new DepositRequester(
+                RequestSpecs.authAsUser(sender.getUsername(), sender.getPassword()),
+                ResponseSpecs.requestReturnsOK());
+
+        depositRequester.post(DepositRequest.builder().id(senderAccountId).balance(5000).build());
+        depositRequester.post(DepositRequest.builder().id(senderAccountId).balance(5000).build());
+
+        // Создаём получателя
+        CreateUserRequest receiver = CreateUserRequest.builder()
+                .username(RandomData.getUsername())
+                .password(RandomData.getPassword())
+                .role(UserRole.USER.toString())
+                .build();
+
+        new AdminCreateUserRequester(
+                RequestSpecs.adminSpec(),
+                ResponseSpecs.entityWasCreated())
+                .post(receiver);
+
+        // Создаём аккаунт получателя
+        int receiverAccountId = new CreateAccountRequester(
+                RequestSpecs.authAsUser(receiver.getUsername(), receiver.getPassword()),
+                ResponseSpecs.entityWasCreated())
+                .post(null)
+                .extract().path("id");
+
+        // Совершаем перевод
+        TransferResponse response = new TransferRequester(
+                RequestSpecs.authAsUser(sender.getUsername(), sender.getPassword()),
+                ResponseSpecs.requestReturnsOKWithMessage("Transfer successful"))
+                .post(TransferRequest.builder()
+                        .senderAccountId(senderAccountId)
+                        .receiverAccountId(receiverAccountId)
+                        .amount(transferAmount)
+                        .build())
                 .extract()
-                .header("Authorization");
+                .as(TransferResponse.class);
 
-        // Создание аккаунта отправителя
-        int senderAccountId = given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .header("Authorization", senderAuthHeader)
-                .post("http://localhost:4111/api/v1/accounts")
-                .then()
-                .statusCode(HttpStatus.SC_CREATED)
-                .extract()
-                .path("id");
-
-        // Пополнение баланса
-        // Первый депозит
-        given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .header("Authorization", senderAuthHeader)
-                .body("""
-                        {
-                          "id": %d,
-                          "balance": 5000
-                        }
-                        """.formatted(senderAccountId))
-                .post("http://localhost:4111/api/v1/accounts/deposit")
-                .then()
-                .statusCode(HttpStatus.SC_OK);
-
-        // Второй депозит
-        given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .header("Authorization", senderAuthHeader)
-                .body("""
-                        {
-                          "id": %d,
-                          "balance": 5000
-                        }
-                        """.formatted(senderAccountId))
-                .post("http://localhost:4111/api/v1/accounts/deposit")
-                .then()
-                .statusCode(HttpStatus.SC_OK);
-
-        // Создание получателя
-        String receiverUsername = TestDataFactory.generateValidUsername();
-        String receiverPassword = TestDataFactory.generateValidPassword();
-
-        given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .header("Authorization", "Basic YWRtaW46YWRtaW4=")
-                .body("""
-                        {
-                          "username": "%s",
-                          "password": "%s",
-                          "role": "USER"
-                        }
-                        """.formatted(receiverUsername, receiverPassword))
-                .post("http://localhost:4111/api/v1/admin/users")
-                .then()
-                .statusCode(HttpStatus.SC_CREATED);
-
-        // Логин получателя
-        String receiverAuthHeader = given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body("""
-                        {
-                          "username": "%s",
-                          "password": "%s"
-                        }
-                        """.formatted(receiverUsername, receiverPassword))
-                .post("http://localhost:4111/api/v1/auth/login")
-                .then()
-                .statusCode(HttpStatus.SC_OK)
-                .extract()
-                .header("Authorization");
-
-        //Создание аккаунта получателя
-        int receiverAccountId = given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .header("Authorization", receiverAuthHeader)
-                .post("http://localhost:4111/api/v1/accounts")
-                .then()
-                .statusCode(HttpStatus.SC_CREATED)
-                .extract()
-                .path("id");
-
-        // Совершение перевода
-        given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .header("Authorization", senderAuthHeader)
-                .body("""
-                        {
-                          "senderAccountId": %d,
-                          "receiverAccountId": %d,
-                          "amount": %s
-                        }
-                        """.formatted(senderAccountId, receiverAccountId, transferAmount))
-                .post("http://localhost:4111/api/v1/accounts/transfer")
-                .then()
-                .statusCode(HttpStatus.SC_OK)
-                .body("message", equalTo("Transfer successful"))
-                .body("amount", equalTo((float) transferAmount))
-                .body("senderAccountId", equalTo(senderAccountId))
-                .body("receiverAccountId", equalTo(receiverAccountId));
-
-        // Проверка транзакций получателя
-        given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .header("Authorization", receiverAuthHeader)
-                .get("http://localhost:4111/api/v1/accounts/" + receiverAccountId + "/transactions")
-                .then()
-                .statusCode(HttpStatus.SC_OK)
-                .body("[0].amount", equalTo((float) transferAmount))
-                .body("[0].type", equalTo("TRANSFER_IN"))
-                .body("[0].relatedAccountId", equalTo(senderAccountId));
+        softly.assertThat(response.getAmount()).isEqualTo(transferAmount);
+        softly.assertThat(response.getSenderAccountId()).isEqualTo(senderAccountId);
+        softly.assertThat(response.getReceiverAccountId()).isEqualTo(receiverAccountId);
+        softly.assertThat(response.getMessage()).isEqualTo("Transfer successful");
     }
 
     public static Stream<Arguments> invalidAmounts() {
@@ -200,219 +102,107 @@ public class TransferTest {
     @DisplayName("Перевод недопустимой суммы на другой аккаунт")
     @MethodSource("invalidAmounts")
     @ParameterizedTest
-    public void userCannotTransferInvalidAmount(double transferAmount, String expectedMessage) {
+    public void userCannotTransferInvalidAmountTest(double transferAmount, String expectedMessage) {
 
-        //  Создание отправителя
-        String senderUsername = TestDataFactory.generateValidUsername();
-        String senderPassword = TestDataFactory.generateValidPassword();
+        // Создаём отправителя
+        CreateUserRequest sender = CreateUserRequest.builder()
+                .username(RandomData.getUsername())
+                .password(RandomData.getPassword())
+                .role(UserRole.USER.toString())
+                .build();
 
-        given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .header("Authorization", "Basic YWRtaW46YWRtaW4=")
-                .body("""
-                        {
-                          "username": "%s",
-                          "password": "%s",
-                          "role": "USER"
-                        }
-                        """.formatted(senderUsername, senderPassword))
-                .post("http://localhost:4111/api/v1/admin/users")
-                .then().statusCode(HttpStatus.SC_CREATED);
+        new AdminCreateUserRequester(RequestSpecs.adminSpec(), ResponseSpecs.entityWasCreated())
+                .post(sender);
 
-        String senderAuthHeader = given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body("""
-                        {
-                          "username": "%s",
-                          "password": "%s"
-                        }
-                        """.formatted(senderUsername, senderPassword))
-                .post("http://localhost:4111/api/v1/auth/login")
-                .then().statusCode(HttpStatus.SC_OK)
-                .extract().header("Authorization");
-
-        int senderAccountId = given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .header("Authorization", senderAuthHeader)
-                .post("http://localhost:4111/api/v1/accounts")
-                .then().statusCode(HttpStatus.SC_CREATED)
+        int senderAccountId = new CreateAccountRequester(
+                RequestSpecs.authAsUser(sender.getUsername(), sender.getPassword()),
+                ResponseSpecs.entityWasCreated())
+                .post(null)
                 .extract().path("id");
 
-        //  Создание получателя
-        String receiverUsername = TestDataFactory.generateValidUsername();
-        String receiverPassword = TestDataFactory.generateValidPassword();
+        // Создаём получателя
+        CreateUserRequest receiver = CreateUserRequest.builder()
+                .username(RandomData.getUsername())
+                .password(RandomData.getPassword())
+                .role(UserRole.USER.toString())
+                .build();
 
-        given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .header("Authorization", "Basic YWRtaW46YWRtaW4=")
-                .body("""
-                        {
-                          "username": "%s",
-                          "password": "%s",
-                          "role": "USER"
-                        }
-                        """.formatted(receiverUsername, receiverPassword))
-                .post("http://localhost:4111/api/v1/admin/users")
-                .then().statusCode(HttpStatus.SC_CREATED);
+        new AdminCreateUserRequester(RequestSpecs.adminSpec(), ResponseSpecs.entityWasCreated())
+                .post(receiver);
 
-        String receiverAuthHeader = given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body("""
-                        {
-                          "username": "%s",
-                          "password": "%s"
-                        }
-                        """.formatted(receiverUsername, receiverPassword))
-                .post("http://localhost:4111/api/v1/auth/login")
-                .then().statusCode(HttpStatus.SC_OK)
-                .extract().header("Authorization");
-
-        int receiverAccountId = given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .header("Authorization", receiverAuthHeader)
-                .post("http://localhost:4111/api/v1/accounts")
-                .then().statusCode(HttpStatus.SC_CREATED)
+        int receiverAccountId = new CreateAccountRequester(
+                RequestSpecs.authAsUser(receiver.getUsername(), receiver.getPassword()),
+                ResponseSpecs.entityWasCreated())
+                .post(null)
                 .extract().path("id");
 
-        // перевод недопустимой суммы
-        String actualResponse = given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .header("Authorization", senderAuthHeader)
-                .body("""
-                        {
-                          "senderAccountId": %d,
-                          "receiverAccountId": %d,
-                          "amount": %s
-                        }
-                        """.formatted(senderAccountId, receiverAccountId, transferAmount))
-                .post("http://localhost:4111/api/v1/accounts/transfer")
-                .then()
-                .statusCode(HttpStatus.SC_BAD_REQUEST)
-                .extract().asString();
-
-        assertThat(actualResponse, equalTo(expectedMessage));
+        // Пытаемся перевести недопустимую сумму
+        new TransferRequester(
+                RequestSpecs.authAsUser(sender.getUsername(), sender.getPassword()),
+                ResponseSpecs.requestReturnsBadRequestPlainText(expectedMessage))
+                .post(TransferRequest.builder()
+                        .senderAccountId(senderAccountId)
+                        .receiverAccountId(receiverAccountId)
+                        .amount(transferAmount)
+                        .build());
     }
 
     @DisplayName("Перевод суммы, превышающей баланс отправителя")
     @Test
-    public void transferAmountExceedingBalanceShouldFail() {
+    public void transferAmountExceedingBalanceShouldFailTest() {
 
-        double initialBalance = 50.00;// Баланс отправителя
-        double transferAmount = 100.00;// Сумма перевода > баланса
+        double initialBalance = 50.00;
+        double transferAmount = 100.00;
 
-        String senderUsername = TestDataFactory.generateValidUsername();
-        String senderPassword = TestDataFactory.generateValidPassword();
+        // Создаём отправителя
+        CreateUserRequest sender = CreateUserRequest.builder()
+                .username(RandomData.getUsername())
+                .password(RandomData.getPassword())
+                .role(UserRole.USER.toString())
+                .build();
 
-        given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .header("Authorization", "Basic YWRtaW46YWRtaW4=")
-                .body("""
-                        {
-                          "username": "%s",
-                          "password": "%s",
-                          "role": "USER"
-                        }
-                        """.formatted(senderUsername, senderPassword))
-                .post("http://localhost:4111/api/v1/admin/users")
-                .then().statusCode(HttpStatus.SC_CREATED);
+        new AdminCreateUserRequester(RequestSpecs.adminSpec(), ResponseSpecs.entityWasCreated())
+                .post(sender);
 
-        String senderAuthHeader = given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body("""
-                        {
-                          "username": "%s",
-                          "password": "%s"
-                        }
-                        """.formatted(senderUsername, senderPassword))
-                .post("http://localhost:4111/api/v1/auth/login")
-                .then().statusCode(HttpStatus.SC_OK)
-                .extract().header("Authorization");
-
-        int senderAccountId = given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .header("Authorization", senderAuthHeader)
-                .post("http://localhost:4111/api/v1/accounts")
-                .then().statusCode(HttpStatus.SC_CREATED)
+        int senderAccountId = new CreateAccountRequester(
+                RequestSpecs.authAsUser(sender.getUsername(), sender.getPassword()),
+                ResponseSpecs.entityWasCreated())
+                .post(null)
                 .extract().path("id");
 
-        given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .header("Authorization", senderAuthHeader)
-                .body("""
-                        {
-                          "id": %d,
-                          "balance": %s
-                        }
-                        """.formatted(senderAccountId, initialBalance))
-                .post("http://localhost:4111/api/v1/accounts/deposit")
-                .then().statusCode(HttpStatus.SC_OK);
+        // Пополняем баланс (меньше, чем перевод)
+        new DepositRequester(
+                RequestSpecs.authAsUser(sender.getUsername(), sender.getPassword()),
+                ResponseSpecs.requestReturnsOK())
+                .post(DepositRequest.builder()
+                        .id(senderAccountId)
+                        .balance(initialBalance)
+                        .build());
 
-        //  Создание получателя
-        String receiverUsername = TestDataFactory.generateValidUsername();
-        String receiverPassword = TestDataFactory.generateValidPassword();
+        // Создаём получателя
+        CreateUserRequest receiver = CreateUserRequest.builder()
+                .username(RandomData.getUsername())
+                .password(RandomData.getPassword())
+                .role(UserRole.USER.toString())
+                .build();
 
-        given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .header("Authorization", "Basic YWRtaW46YWRtaW4=")
-                .body("""
-                        {
-                          "username": "%s",
-                          "password": "%s",
-                          "role": "USER"
-                        }
-                        """.formatted(receiverUsername, receiverPassword))
-                .post("http://localhost:4111/api/v1/admin/users")
-                .then().statusCode(HttpStatus.SC_CREATED);
+        new AdminCreateUserRequester(RequestSpecs.adminSpec(), ResponseSpecs.entityWasCreated())
+                .post(receiver);
 
-        String receiverAuthHeader = given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body("""
-                        {
-                          "username": "%s",
-                          "password": "%s"
-                        }
-                        """.formatted(receiverUsername, receiverPassword))
-                .post("http://localhost:4111/api/v1/auth/login")
-                .then().statusCode(HttpStatus.SC_OK)
-                .extract().header("Authorization");
-
-        int receiverAccountId = given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .header("Authorization", receiverAuthHeader)
-                .post("http://localhost:4111/api/v1/accounts")
-                .then().statusCode(HttpStatus.SC_CREATED)
+        int receiverAccountId = new CreateAccountRequester(
+                RequestSpecs.authAsUser(receiver.getUsername(), receiver.getPassword()),
+                ResponseSpecs.entityWasCreated())
+                .post(null)
                 .extract().path("id");
 
-        //  Попытка перевода
-        String actualResponse = given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .header("Authorization", senderAuthHeader)
-                .body("""
-                        {
-                          "senderAccountId": %d,
-                          "receiverAccountId": %d,
-                          "amount": %s
-                        }
-                        """.formatted(senderAccountId, receiverAccountId, transferAmount))
-                .post("http://localhost:4111/api/v1/accounts/transfer")
-                .then()
-                .statusCode(HttpStatus.SC_BAD_REQUEST)
-                .extract().asString();
-        assertThat(actualResponse, containsString("insufficient funds or invalid accounts"));
+        // Пытаемся перевести сумму больше баланса
+        new TransferRequester(
+                RequestSpecs.authAsUser(sender.getUsername(), sender.getPassword()),
+                ResponseSpecs.requestReturnsBadRequestPlainTextContaining("insufficient funds or invalid accounts"))
+                .post(TransferRequest.builder()
+                        .senderAccountId(senderAccountId)
+                        .receiverAccountId(receiverAccountId)
+                        .amount(transferAmount)
+                        .build());
     }
 }

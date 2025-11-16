@@ -1,0 +1,19 @@
+// Status: 401, time: 69ms, size: 0 B
+### Positive Пополнение баланса средней допустимой суммой (200.00)
+POST http://localhost:4111/api/v1/accounts/deposit HTTP/1.1
+cache-control: no-cache, no-store, max-age=0, must-revalidate
+content-length: 0
+date: Sun, 09 Nov 2025 08:51:51 GMT
+expires: 0
+pragma: no-cache
+set-cookie: JSESSIONID=1B79C20709C092137880C679BC6F0748; Path=/; HttpOnly
+vary: Origin
+vary: Access-Control-Request-Method
+vary: Access-Control-Request-Headers
+www-authenticate: Basic realm="Realm"
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-xss-protection: 0
+
+
+>> C:\Users\V\IdeaProjects\nbank-test-api\.idea\httpClient\11-09\Positive Пополнение баланса средней допустимой суммой (200.00)\2025-11-09T115151.txt

@@ -1,0 +1,19 @@
+// Status: 401, time: 80ms, size: 0 B
+### Positive Пополнение баланса минимально допустимой суммой (0.01)
+POST http://localhost:4111/api/v1/accounts/deposit HTTP/1.1
+cache-control: no-cache, no-store, max-age=0, must-revalidate
+content-length: 0
+date: Wed, 12 Nov 2025 11:08:17 GMT
+expires: 0
+pragma: no-cache
+set-cookie: JSESSIONID=8392502A6DB5F10936E372B31C6F5AB0; Path=/; HttpOnly
+vary: Origin
+vary: Access-Control-Request-Method
+vary: Access-Control-Request-Headers
+www-authenticate: Basic realm="Realm"
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-xss-protection: 0
+
+
+>> C:\Users\V\IdeaProjects\nbank-test-api\.idea\httpClient\11-12\Positive Пополнение баланса минимально допустимой суммой (0.01)\2025-11-12T140817.txt
