@@ -1,4 +1,4 @@
-package apiTest;
+package iteration.api;
 
 import generators.RandomData;
 import models.CreateUserRequest;
