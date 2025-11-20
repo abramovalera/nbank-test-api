@@ -50,6 +50,12 @@
             <version>3.27.6</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.codeborne</groupId>
+            <artifactId>selenide</artifactId>
+            <version>7.6.1</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
